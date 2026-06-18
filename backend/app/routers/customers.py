@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app import crud, schemas, database
+from app.dependencies import verify_admin_token
 
 router = APIRouter(
     prefix="/customers",
@@ -22,14 +23,14 @@ def read_customer(customer_id: int, db: Session = Depends(database.get_db)):
         )
     return db_customer
 
-@router.post("/", response_model=schemas.Customer, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.Customer, status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_admin_token)])
 def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(database.get_db)):
     return crud.create_customer(db=db, customer=customer)
 
-@router.put("/{customer_id}", response_model=schemas.Customer)
+@router.put("/{customer_id}", response_model=schemas.Customer, dependencies=[Depends(verify_admin_token)])
 def update_customer(customer_id: int, customer_update: schemas.CustomerUpdate, db: Session = Depends(database.get_db)):
     return crud.update_customer(db=db, customer_id=customer_id, customer_update=customer_update)
 
-@router.delete("/{customer_id}", response_model=schemas.Customer)
+@router.delete("/{customer_id}", response_model=schemas.Customer, dependencies=[Depends(verify_admin_token)])
 def delete_customer(customer_id: int, db: Session = Depends(database.get_db)):
     return crud.delete_customer(db=db, customer_id=customer_id)

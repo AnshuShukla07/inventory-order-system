@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app import crud, schemas, database
+from app.dependencies import verify_admin_token
 
 router = APIRouter(
     prefix="/orders",
@@ -22,10 +23,10 @@ def read_order(order_id: int, db: Session = Depends(database.get_db)):
         )
     return db_order
 
-@router.post("/", response_model=schemas.Order, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.Order, status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_admin_token)])
 def create_order(order: schemas.OrderCreate, db: Session = Depends(database.get_db)):
     return crud.create_order(db=db, order_in=order)
 
-@router.put("/{order_id}/status", response_model=schemas.Order)
+@router.put("/{order_id}/status", response_model=schemas.Order, dependencies=[Depends(verify_admin_token)])
 def update_order_status(order_id: int, status_update: schemas.OrderUpdate, db: Session = Depends(database.get_db)):
     return crud.update_order_status(db=db, order_id=order_id, status_update=status_update)

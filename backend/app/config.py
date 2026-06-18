@@ -4,6 +4,7 @@ from pydantic import field_validator
 
 class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./inventory.db"
+    ADMIN_API_KEY: str = "admin123"
     
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

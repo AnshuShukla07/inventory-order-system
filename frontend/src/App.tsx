@@ -26,6 +26,16 @@ const API_BASE_URL = rawApiUrl;
 function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'customers' | 'orders'>('dashboard');
   
+  // Passcode State
+  const [passcode, setPasscode] = useState(localStorage.getItem('admin_passcode') || '');
+  
+  const getAuthHeaders = (extraHeaders: Record<string, string> = {}) => {
+    return {
+      ...extraHeaders,
+      ...(passcode ? { 'Authorization': `Bearer ${passcode}` } : {})
+    };
+  };
+
   // Data States
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -74,11 +84,12 @@ function App() {
     setLoading(true);
     setError(null);
     try {
+      const headers = getAuthHeaders();
       const [resProducts, resCustomers, resOrders, resStats] = await Promise.all([
-        fetch(`${API_BASE_URL}/products`),
-        fetch(`${API_BASE_URL}/customers`),
-        fetch(`${API_BASE_URL}/orders`),
-        fetch(`${API_BASE_URL}/dashboard-stats`)
+        fetch(`${API_BASE_URL}/products`, { headers }),
+        fetch(`${API_BASE_URL}/customers`, { headers }),
+        fetch(`${API_BASE_URL}/orders`, { headers }),
+        fetch(`${API_BASE_URL}/dashboard-stats`, { headers })
       ]);
 
       if (!resProducts.ok || !resCustomers.ok || !resOrders.ok || !resStats.ok) {
@@ -151,7 +162,7 @@ function App() {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload)
       });
 
@@ -171,7 +182,10 @@ function App() {
   const handleProductDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/products/${id}`, { 
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.detail || "Failed to delete product");
@@ -214,7 +228,7 @@ function App() {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload)
       });
 
@@ -234,7 +248,10 @@ function App() {
   const handleCustomerDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this customer?")) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/customers/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/customers/${id}`, { 
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.detail || "Failed to delete customer");
@@ -297,7 +314,7 @@ function App() {
     try {
       const res = await fetch(`${API_BASE_URL}/orders/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           customer_id: parseInt(orderCustomerId),
           items: filteredItems
@@ -322,7 +339,7 @@ function App() {
     try {
       const res = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ status: 'Cancelled' })
       });
       const data = await res.json();
@@ -393,6 +410,27 @@ function App() {
             </div>
           </li>
         </ul>
+
+        {/* Admin Access Panel */}
+        <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+          <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>
+            🔑 Admin Passcode
+          </label>
+          <input 
+            type="password" 
+            className="form-control" 
+            placeholder="Enter passcode..."
+            value={passcode}
+            onChange={e => {
+              setPasscode(e.target.value);
+              localStorage.setItem('admin_passcode', e.target.value);
+            }}
+            style={{ fontSize: '0.85rem', padding: '0.5rem 0.75rem' }}
+          />
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.35rem', display: 'block' }}>
+            Required for adding, editing, or deleting items.
+          </span>
+        </div>
       </aside>
 
       {/* Main Content */}
