@@ -3,9 +3,20 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 from app.config import settings
-from passlib.context import CryptContext
+import bcrypt
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+class DirectBcryptContext:
+    def hash(self, secret: str) -> str:
+        return bcrypt.hashpw(secret.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    def verify(self, secret: str, hash_val: str) -> bool:
+        try:
+            return bcrypt.checkpw(secret.encode('utf-8'), hash_val.encode('utf-8'))
+        except Exception:
+            return False
+
+pwd_context = DirectBcryptContext()
+
 
 def verify_admin_token(authorization: str = Header(None), db: Session = Depends(get_db)):
     if not authorization or not authorization.startswith("Bearer "):
