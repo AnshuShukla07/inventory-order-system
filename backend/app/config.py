@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import field_validator
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/inventory_db"
+    DATABASE_URL: str = "sqlite:///./inventory.db"
     
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
