@@ -1,17 +1,39 @@
-from fastapi import Header, HTTPException, status
+from fastapi import Header, HTTPException, status, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app import models
 from app.config import settings
+from passlib.context import CryptContext
 
-def verify_admin_token(authorization: str = Header(None)):
-    # If ADMIN_API_KEY is not set (e.g. empty string), we skip security for easier local testing.
-    # But if it is set, we strictly enforce it.
-    if not settings.ADMIN_API_KEY:
-        return
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_admin_token(authorization: str = Header(None), db: Session = Depends(get_db)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized. Invalid or missing admin passcode."
+        )
         
-    token = None
-    if authorization and authorization.startswith("Bearer "):
-        token = authorization.split(" ")[1]
+    token = authorization.split(" ")[1]
+    
+    # Fetch admin user
+    admin_user = db.query(models.User).filter(models.User.username == "admin").first()
+    
+    # Initialize if not present
+    if not admin_user:
+        hashed_pw = pwd_context.hash(settings.ADMIN_API_KEY)
+        admin_user = models.User(username="admin", hashed_password=hashed_pw)
+        db.add(admin_user)
+        db.commit()
+        db.refresh(admin_user)
         
-    if token != settings.ADMIN_API_KEY:
+    # Verify passcode
+    try:
+        is_valid = pwd_context.verify(token, admin_user.hashed_password)
+    except Exception:
+        is_valid = False
+        
+    if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized. Invalid or missing admin passcode."

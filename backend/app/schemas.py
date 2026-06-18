@@ -93,3 +93,7 @@ class DashboardStats(BaseModel):
     total_orders: int
     total_revenue: Decimal
     low_stock_products: List[Product]
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=6)

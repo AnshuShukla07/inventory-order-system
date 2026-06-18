@@ -28,6 +28,12 @@ function App() {
   
   // Passcode State
   const [passcode, setPasscode] = useState(localStorage.getItem('admin_passcode') || 'admin123');
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [changePasswordForm, setChangePasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
+  });
   
   const getAuthHeaders = (extraHeaders: Record<string, string> = {}) => {
     return {
@@ -124,6 +130,46 @@ function App() {
     } else {
       setError(msg);
       setTimeout(() => setError(null), 6000);
+    }
+  };
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (changePasswordForm.newPassword !== changePasswordForm.confirmNewPassword) {
+      triggerNotification('error', "New passcodes do not match.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${passcode}`
+        },
+        body: JSON.stringify({
+          current_password: changePasswordForm.currentPassword,
+          new_password: changePasswordForm.newPassword
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to change admin passcode.");
+      }
+
+      triggerNotification('success', "Admin passcode updated successfully.");
+      setPasscode(changePasswordForm.newPassword);
+      localStorage.setItem('admin_passcode', changePasswordForm.newPassword);
+      setShowChangePasswordModal(false);
+      setChangePasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+    } catch (err: any) {
+      triggerNotification('error', err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -413,8 +459,16 @@ function App() {
 
         {/* Admin Access Panel */}
         <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
-          <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>
-            🔑 Admin Passcode
+          <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>🔑 Admin Passcode</span>
+            {passcode && (
+              <span 
+                style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.7rem' }}
+                onClick={() => setShowChangePasswordModal(true)}
+              >
+                Change Passcode
+              </span>
+            )}
           </label>
           <input 
             type="password" 
@@ -1105,6 +1159,57 @@ function App() {
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- CHANGE PASSCODE MODAL --- */}
+      {showChangePasswordModal && (
+        <div className="modal-backdrop">
+          <div className="glass-panel modal-content" style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h3>Change Admin Passcode</h3>
+              <button className="modal-close" onClick={() => setShowChangePasswordModal(false)}><X size={20} /></button>
+            </div>
+            <form onSubmit={handleChangePasswordSubmit}>
+              <div className="form-group">
+                <label className="form-label">Current Passcode</label>
+                <input 
+                  type="password" 
+                  className="form-control" 
+                  placeholder="Enter current passcode..."
+                  required
+                  value={changePasswordForm.currentPassword}
+                  onChange={e => setChangePasswordForm({ ...changePasswordForm, currentPassword: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">New Passcode</label>
+                <input 
+                  type="password" 
+                  className="form-control" 
+                  placeholder="Minimum 6 characters..."
+                  required
+                  value={changePasswordForm.newPassword}
+                  onChange={e => setChangePasswordForm({ ...changePasswordForm, newPassword: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Confirm New Passcode</label>
+                <input 
+                  type="password" 
+                  className="form-control" 
+                  placeholder="Re-enter new passcode..."
+                  required
+                  value={changePasswordForm.confirmNewPassword}
+                  onChange={e => setChangePasswordForm({ ...changePasswordForm, confirmNewPassword: e.target.value })}
+                />
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowChangePasswordModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Update Passcode</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

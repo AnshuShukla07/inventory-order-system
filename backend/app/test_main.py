@@ -183,3 +183,37 @@ def test_order_cancellation_restores_stock():
 
     # 4. Verify stock is restored
     assert client.get(f"/api/products/{p_id}").json()["stock_quantity"] == 10
+
+def test_change_admin_passcode():
+    # 1. Verify current passcode works
+    res_product_ok = client.post(
+        "/api/products/",
+        json={"sku": "PROD-TEMP-1", "name": "Temp Prod", "price": 5.99, "stock_quantity": 10},
+        headers={"Authorization": "Bearer admin123"}
+    )
+    assert res_product_ok.status_code == 201
+
+    # 2. Change admin passcode
+    res_change = client.post(
+        "/api/admin/change-password",
+        json={"current_password": "admin123", "new_password": "newpasscode456"},
+        headers={"Authorization": "Bearer admin123"}
+    )
+    assert res_change.status_code == 200
+    assert "Admin passcode updated successfully" in res_change.json()["message"]
+
+    # 3. Verify old passcode is now rejected
+    res_product_fail = client.post(
+        "/api/products/",
+        json={"sku": "PROD-TEMP-2", "name": "Temp Prod 2", "price": 5.99, "stock_quantity": 10},
+        headers={"Authorization": "Bearer admin123"}
+    )
+    assert res_product_fail.status_code == 401
+
+    # 4. Verify new passcode works
+    res_product_new = client.post(
+        "/api/products/",
+        json={"sku": "PROD-TEMP-3", "name": "Temp Prod 3", "price": 5.99, "stock_quantity": 10},
+        headers={"Authorization": "Bearer newpasscode456"}
+    )
+    assert res_product_new.status_code == 201
