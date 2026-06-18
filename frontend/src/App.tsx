@@ -27,7 +27,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'customers' | 'orders'>('dashboard');
   
   // Passcode State
-  const [passcode, setPasscode] = useState(localStorage.getItem('admin_passcode') || '');
+  const [passcode, setPasscode] = useState(localStorage.getItem('admin_passcode') || 'admin123');
   
   const getAuthHeaders = (extraHeaders: Record<string, string> = {}) => {
     return {
@@ -428,7 +428,7 @@ function App() {
             style={{ fontSize: '0.85rem', padding: '0.5rem 0.75rem' }}
           />
           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.35rem', display: 'block' }}>
-            Required for adding, editing, or deleting items.
+            Required for adding, editing, or deleting items. Default: admin123
           </span>
         </div>
       </aside>

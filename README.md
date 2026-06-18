@@ -11,6 +11,9 @@ A simplified full-stack Inventory & Order Management System for managing product
 - 🌐 **Frontend Dashboard**: [https://inventory-frontend-ee38.onrender.com](https://inventory-frontend-ee38.onrender.com)
 - ⚙️ **Backend API Docs (Swagger)**: [https://inventory-backend-f6wn.onrender.com/docs](https://inventory-backend-f6wn.onrender.com/docs)
 
+> [!NOTE]
+> **Admin Authorization Passcode**: To add, edit, or delete items on the live dashboard, use the default passcode: **`admin123`** (pre-filled by default).
+
 ---
 
 ## Technical Stack
