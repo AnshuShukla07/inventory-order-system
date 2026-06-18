@@ -38,3 +38,6 @@ def verify_admin_token(authorization: str = Header(None), db: Session = Depends(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized. Invalid or missing admin passcode."
         )
+        
+    return admin_user
+
