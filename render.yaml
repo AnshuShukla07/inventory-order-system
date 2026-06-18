@@ -19,9 +19,8 @@ services:
           property: connectionString
 
   # 2. React Frontend
-  - type: web
+  - type: static
     name: inventory-frontend
-    env: static
     plan: free
     buildCommand: cd frontend && npm install && npm run build
     publishPath: frontend/dist
