@@ -17,7 +17,11 @@ import {
 } from 'lucide-react';
 import { Product, Customer, Order, DashboardStats } from './types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+let rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+if (rawApiUrl && !rawApiUrl.endsWith('/api') && !rawApiUrl.endsWith('/api/')) {
+  rawApiUrl = `${rawApiUrl.replace(/\/$/, '')}/api`;
+}
+const API_BASE_URL = rawApiUrl;
 
 function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'customers' | 'orders'>('dashboard');
