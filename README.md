@@ -1,5 +1,7 @@
 # Inventory & Order Management System
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/AnshuShukla07/inventory-order-system)
+
 A simplified full-stack Inventory & Order Management System for managing products, customers, and orders. Features a modern glassmorphic React dashboard frontend, a secure FastAPI Python backend, and PostgreSQL data persistence. Fully containerized with Docker.
 
 ---

@@ -1,0 +1,33 @@
+services:
+  # 1. PostgreSQL Database
+  - type: db
+    name: inventory-db
+    databaseName: inventory_db
+    user: postgres
+    plan: free
+
+  # 2. FastAPI Backend
+  - type: web
+    name: inventory-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: inventory-db
+          property: connectionString
+
+  # 3. React Frontend
+  - type: web
+    name: inventory-frontend
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    publishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: inventory-backend
+          value: https://${name}.onrender.com/api
