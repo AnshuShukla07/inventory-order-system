@@ -6,6 +6,13 @@ A simplified full-stack Inventory & Order Management System for managing product
 
 ---
 
+## 🚀 Live Demo
+
+- 🌐 **Frontend Dashboard**: [https://inventory-frontend-ee38.onrender.com](https://inventory-frontend-ee38.onrender.com)
+- ⚙️ **Backend API Docs (Swagger)**: [https://inventory-backend-f6wn.onrender.com/docs](https://inventory-backend-f6wn.onrender.com/docs)
+
+---
+
 ## Technical Stack
 
 - **Backend**: FastAPI, SQLAlchemy ORM, SQLite/PostgreSQL, Pydantic
