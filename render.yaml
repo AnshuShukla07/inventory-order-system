@@ -30,4 +30,4 @@ services:
         fromService:
           name: inventory-backend
           type: web
-          property: url
+          envVarKey: RENDER_EXTERNAL_URL
