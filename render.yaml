@@ -1,12 +1,11 @@
-services:
-  # 1. PostgreSQL Database
-  - type: db
-    name: inventory-db
+databases:
+  - name: inventory-db
     databaseName: inventory_db
     user: postgres
     plan: free
 
-  # 2. FastAPI Backend
+services:
+  # 1. FastAPI Backend
   - type: web
     name: inventory-backend
     env: python
@@ -19,7 +18,7 @@ services:
           name: inventory-db
           property: connectionString
 
-  # 3. React Frontend
+  # 2. React Frontend
   - type: web
     name: inventory-frontend
     env: static
