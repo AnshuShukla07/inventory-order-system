@@ -15,7 +15,7 @@ import {
   TrendingUp,
   DollarSign
 } from 'lucide-react';
-import { Product, Customer, Order, DashboardStats } from './types';
+import type { Product, Customer, Order, DashboardStats } from './types';
 
 let rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 if (rawApiUrl && !rawApiUrl.endsWith('/api') && !rawApiUrl.endsWith('/api/')) {
@@ -505,7 +505,7 @@ function App() {
                   {stats.low_stock_products.length === 0 ? (
                     <div className="empty-state">
                       <Check size={40} color="var(--success)" />
-                      <p>All products are sufficiently stocked (>= 10 units).</p>
+                      <p>All products are sufficiently stocked (&gt;= 10 units).</p>
                     </div>
                   ) : (
                     <div className="table-container">
