@@ -55,3 +55,5 @@ def read_root():
 @app.get("/api/dashboard-stats", response_model=schemas.DashboardStats, tags=["Dashboard"])
 def get_dashboard_stats(db: Session = Depends(get_db)):
     return crud.get_dashboard_stats(db)
+
+# Trigger backend redeploy on Render
