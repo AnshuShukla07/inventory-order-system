@@ -489,20 +489,23 @@ function App() {
 
       {/* Main Content */}
       <main className="main-content">
-        {/* Banner Alert/Notifications */}
-        {error && (
-          <div className="alert alert-danger">
-            <AlertTriangle size={20} />
-            <span>{error}</span>
-          </div>
-        )}
-        
-        {success && (
-          <div className="alert alert-success">
-            <Check size={20} />
-            <span>{success}</span>
-          </div>
-        )}
+        {/* Toast Notifications Container */}
+        <div className="toast-container">
+          {error && (
+            <div className="alert alert-danger">
+              <AlertTriangle size={20} />
+              <span>{error}</span>
+            </div>
+          )}
+          
+          {success && (
+            <div className="alert alert-success">
+              <Check size={20} />
+              <span>{success}</span>
+            </div>
+          )}
+        </div>
+
 
         {/* Dynamic Headers */}
         <div className="header-container">
